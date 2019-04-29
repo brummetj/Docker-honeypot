@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    name: blackbox
+  name: blackbox
+  namespace: honeypot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: blackbox
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        name: blackbox
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/probe: "true"
+    spec:
+      containers:
+      - args:
+        - --config.file=/opt/bitnami/blackbox-exporter/conf/blackbox.yml
+        image:  bitnami/blackbox-exporter:latest
+        name: blackbox
+        ports:
+        - containerPort: 9115
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /opt/bitnami/blackbox-exporter/conf
+          name: config-volume
+        resources:
+          limits:
+            cpu: 500m
+            memory: 2500Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          name: blackbox-config
+        name: config-volume

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blackbox
+  namespace: honeypot
+  labels:
+    name: blackbox
+spec:
+  ports:
+  - name: blackbox
+    port: 9115
+    protocol: TCP
+    targetPort: 9115
+  selector:
+    name: blackbox
+  type: NodePort
